@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { downloadImage } from "./utils/download";
+import {
+  LogoIcon,
+  SearchIcon,
+  FilterIcon,
+  DownloadIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CategoryIcon,
+} from "./assets/svg";
 import "./index.css";
 
 // ─── API Config ─────────────────────────────────────────────
@@ -68,8 +77,6 @@ function App() {
   const [category, setCategory] = useState("nature");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [lightboxImg, setLightboxImg] = useState<any>(null);
-  const [zoomed, setZoomed] = useState(false);
 
   const debouncedSearch = useDebounce(searchInput, 500);
   const activeQuery = debouncedSearch || category;
@@ -120,21 +127,6 @@ function App() {
     setCategory(cat);
   };
 
-  // Lock body scroll when lightbox is open
-  useEffect(() => {
-    document.body.style.overflow = lightboxImg ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [lightboxImg]);
-
-  // Close lightbox on Escape
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setLightboxImg(null); setZoomed(false); }
-    };
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, []);
-
   return (
     <div className="min-h-screen bg-gray-950">
       {/* ─── Header ─────────────────────────────────────── */}
@@ -143,19 +135,7 @@ function App() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500">
-              <svg
-                className="h-5 w-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
+              <LogoIcon className="h-5 w-5 text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight text-white">
               Wall<span className="text-indigo-400">Craft</span>
@@ -164,19 +144,7 @@ function App() {
 
           {/* Search */}
           <div className="relative w-72">
-            <svg
-              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
+            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
             <input
               type="text"
               value={searchInput}
@@ -193,19 +161,7 @@ function App() {
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center gap-4">
           {/* Filter indicator icon + label */}
           <div className="flex items-center gap-1.5 text-gray-500 shrink-0">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="white"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-              />
-            </svg>
+            <FilterIcon className="h-4 w-4" />
             <span className="text-xs font-semibold uppercase tracking-wider hidden sm:inline text-white">
               Filters
             </span>
@@ -228,13 +184,7 @@ function App() {
                       : "bg-white/5 text-gray-400 border border-white/5 hover:bg-white/10 hover:text-gray-200"
                   }`}
                 >
-                  <svg
-                    className="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d={f.icon} />
-                  </svg>
+                  <CategoryIcon className="h-4 w-4" path={f.icon} />
                   {f.label}
                 </button>
               );
@@ -249,28 +199,19 @@ function App() {
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
             {Array.from({ length: PER_PAGE }).map((_, i) => (
-              <div
-                key={i}
-                className="animate-pulse rounded-2xl bg-white/5 aspect-[4/3]"
-              />
+              <div key={i} className="animate-pulse rounded-2xl bg-gray-900 overflow-hidden">
+                <div className="bg-white/5 aspect-[4/3]" />
+                <div className="px-3 py-2.5">
+                  <div className="h-4 w-3/4 rounded bg-white/5" />
+                  <div className="h-3 w-1/2 rounded bg-white/5 mt-1.5" />
+                </div>
+              </div>
             ))}
           </div>
         ) : images.length === 0 ? (
           /* ─── Empty State ──────────────────────────── */
-          <div className="flex flex-col items-center justify-center py-24 h-96">
-            <svg
-              className="h-16 w-16 text-gray-700 mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
+          <div className="flex flex-col items-center justify-center" style={{ minHeight: "calc(100vh - 200px)" }}>
+            <LogoIcon className="h-16 w-16 text-gray-700 mb-4" />
             <p className="text-gray-400 text-lg font-medium">
               No wallpapers found
             </p>
@@ -283,7 +224,10 @@ function App() {
             {/* ─── Image Grid ────────────────────────── */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
               {images.map((img: any) => (
-                <div key={img.id} className="group overflow-hidden rounded-2xl bg-gray-900">
+                <div
+                  key={img.id}
+                  className="group overflow-hidden rounded-2xl bg-gray-900"
+                >
                   {/* Image with hover overlay */}
                   <div className="relative overflow-hidden">
                     <Link to={`/image/${img.id}`}>
@@ -297,35 +241,23 @@ function App() {
                     </Link>
 
                     {/* Hover overlay */}
-                    <div className="absolute inset-0 flex flex-col justify-between bg-gradient-to-t from-black/70 via-transparent to-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none">
-                      {/* Top: fullscreen button */}
-                      <div className="flex justify-end p-2.5 pointer-events-auto">
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setLightboxImg(img);
-                          }}
-                          className="rounded-full bg-white/15 p-2 backdrop-blur-sm hover:bg-white/30 cursor-pointer transition-colors"
-                          title="View full size"
-                        >
-                          <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                          </svg>
-                        </button>
-                      </div>
+                    <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/70 via-transparent to-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none">
                       {/* Bottom: photographer + download */}
                       <div className="flex items-center justify-between p-3 pointer-events-auto">
-                        <span className="text-xs font-medium text-white/80 truncate max-w-[55%]">{img.user}</span>
+                        <span className="text-xs font-medium text-white/80 truncate max-w-[55%]">
+                          {img.user}
+                        </span>
                         <button
                           onClick={(e) => {
                             e.preventDefault();
-                            downloadImage(img.previewURL.replace("_150.", "_1280."), `wallpaper-${img.id}.jpg`);
+                            downloadImage(
+                              img.previewURL.replace("_150.", "_1280."),
+                              `wallpaper-${img.id}.jpg`,
+                            );
                           }}
                           className="flex items-center gap-1 rounded-lg bg-indigo-500 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-indigo-400 cursor-pointer transition-colors"
                         >
-                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
+                          <DownloadIcon className="h-3.5 w-3.5" />
                           Download
                         </button>
                       </div>
@@ -340,9 +272,13 @@ function App() {
                     </p>
                     {/* Size and dimensions */}
                     <div className="flex items-center gap-2 mt-1 text-[11px] text-gray-500">
-                      <span>{img.imageWidth} x {img.imageHeight}</span>
+                      <span>
+                        {img.imageWidth} x {img.imageHeight}
+                      </span>
                       <span className="w-1 h-1 rounded-full bg-gray-700" />
-                      <span>{(img.imageSize / (1024 * 1024)).toFixed(1)} MB</span>
+                      <span>
+                        {(img.imageSize / (1024 * 1024)).toFixed(1)} MB
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -359,19 +295,7 @@ function App() {
             disabled={page === 1}
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/5 text-gray-300 text-sm font-medium cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 transition-all"
           >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
+            <ChevronLeftIcon className="h-4 w-4" />
             Prev
           </button>
 
@@ -387,85 +311,25 @@ function App() {
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/5 text-gray-300 text-sm font-medium cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 transition-all"
           >
             Next
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
+            <ChevronRightIcon className="h-4 w-4" />
           </button>
         </div>
       )}
 
       {/* ─── Footer ─────────────────────────────────────── */}
-      <footer className="border-t border-white/5 py-6 text-center">
-        <p className="text-xs text-gray-600">
-          powered by{" "}
-          <a
-            href="https://pixabay.com/api/docs/"
-            target="_blank"
+      {images.length > 0 && (
+        <footer className="border-t border-white/5 py-6 text-center">
+          <p className="text-xs text-gray-600">
+            powered by{" "}
+            <a
+              href="https://pixabay.com/api/docs/"
+              target="_blank"
             className="text-indigo-500 hover:underline"
           >
             Pixabay API
           </a>
         </p>
-      </footer>
-
-      {/* ─── Fullscreen Lightbox ────────────────────────── */}
-      {lightboxImg && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95"
-          style={{ animation: "fadeIn 0.2s ease-out" }}
-          onClick={() => { setLightboxImg(null); setZoomed(false); }}
-        >
-          {/* Close button */}
-          <button
-            onClick={() => { setLightboxImg(null); setZoomed(false); }}
-            className="absolute top-4 right-4 z-10 rounded-full bg-white/10 p-2.5 text-white hover:bg-white/20 transition-colors"
-          >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
-          {/* Image title + info (top-left) */}
-          <div className="absolute top-4 left-4 z-10">
-            <p className="text-sm font-medium text-white capitalize">{lightboxImg.tags.split(",")[0].trim()}</p>
-            <p className="text-xs text-white/50 mt-0.5">
-              {lightboxImg.imageWidth} x {lightboxImg.imageHeight} · {(lightboxImg.imageSize / (1024 * 1024)).toFixed(1)} MB · by {lightboxImg.user}
-            </p>
-          </div>
-
-          {/* Bottom hint */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 rounded-full bg-white/10 px-4 py-2 text-xs text-white/50 backdrop-blur-sm">
-            {zoomed ? "Click to fit" : "Click to zoom"} · Esc to close
-          </div>
-
-          {/* Zoomable image */}
-          <div
-            className={`h-full w-full flex items-center justify-center ${
-              zoomed ? "overflow-auto cursor-zoom-out" : "overflow-hidden cursor-zoom-in"
-            }`}
-            onClick={(e) => { e.stopPropagation(); setZoomed((z) => !z); }}
-          >
-            <img
-              src={lightboxImg.previewURL.replace("_150.", "_1280.")}
-              alt={lightboxImg.tags}
-              referrerPolicy="no-referrer"
-              className={`transition-all duration-300 ${
-                zoomed ? "max-w-none max-h-none" : "max-w-[95vw] max-h-[95vh] object-contain"
-              }`}
-            />
-          </div>
-        </div>
-      )}
+      </footer>)}
 
       <style>{`@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }`}</style>
     </div>
