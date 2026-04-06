@@ -266,7 +266,7 @@ const ImagePreview = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col gap-3 pt-2">
+            <div className="flex flex-col gap-3 pt-2 mt-auto">
               <button
                 onClick={handleDownload}
                 disabled={downloading}

@@ -74,12 +74,12 @@ function App() {
   const [images, setImages] = useState<any[]>([]);
   const [totalHits, setTotalHits] = useState(0);
   const [searchInput, setSearchInput] = useState("");
-  const [category, setCategory] = useState("nature");
+  const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
   const debouncedSearch = useDebounce(searchInput, 500);
-  const activeQuery = debouncedSearch || category;
+  const activeQuery = debouncedSearch || category || "wallpaper";
   const totalPages = Math.ceil(totalHits / PER_PAGE);
 
   // Reset page AND fetch in one effect to avoid race conditions
@@ -103,9 +103,9 @@ function App() {
     };
   }, [activeQuery]);
 
-  // Fetch when page changes (but not page 1 — that's handled above)
+  // Fetch when page changes but not page 1
   useEffect(() => {
-    if (page === 1) return; // already fetched by the query effect
+    if (page === 1) return; 
 
     let cancelled = false;
     const load = async () => {
@@ -120,7 +120,7 @@ function App() {
     return () => {
       cancelled = true;
     };
-  }, [page]); // intentionally no activeQuery dep — query changes reset to page 1
+  }, [page]); //query changes reset to page 1
 
   const handleCategoryClick = (cat: string) => {
     setSearchInput("");
@@ -150,7 +150,7 @@ function App() {
               value={searchInput}
               placeholder="Search wallpapers..."
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder-gray-500 outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder-gray-500 outline-none transition-all"
             />
           </div>
         </div>
@@ -181,7 +181,7 @@ function App() {
                   className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium cursor-pointer transition-all ${
                     isActive
                       ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/25"
-                      : "bg-white/5 text-gray-400 border border-white/5 hover:bg-white/10 hover:text-gray-200"
+                      : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-gray-200"
                   }`}
                 >
                   <CategoryIcon className="h-4 w-4" path={f.icon} />
@@ -266,7 +266,7 @@ function App() {
 
                   {/* Image info below the card */}
                   <div className="px-3 py-2.5">
-                    {/* Title — use the first tag as the image name */}
+                    {/* Title */}
                     <p className="text-sm font-medium text-white truncate capitalize">
                       {img.tags.split(",")[0].trim()}
                     </p>
